@@ -16,9 +16,11 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.List;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -40,6 +42,9 @@ public class Servidor extends javax.swing.JFrame {
     boolean foundIp = false;
     String ip, interfaceStr;
     JFrame frame;
+    
+    //Bitacora
+    DefaultTableModel registrosModel;
     
     public Servidor() {
         frame = this;
@@ -69,6 +74,8 @@ public class Servidor extends javax.swing.JFrame {
         conectarBtn = new javax.swing.JToggleButton();
         noConnection = new javax.swing.JLabel();
         bitácoraPanel = new javax.swing.JPanel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        registrosTable = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setResizable(false);
@@ -137,6 +144,35 @@ public class Servidor extends javax.swing.JFrame {
         jTabbedPane1.addTab("Equipos", equipoPanel);
 
         bitácoraPanel.setLayout(new java.awt.GridLayout(1, 0));
+
+        registrosModel = new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "PC", "Inicio", "Fin", "Costo"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        };
+        registrosTable.setModel(registrosModel);
+        jScrollPane1.setViewportView(registrosTable);
+
+        bitácoraPanel.add(jScrollPane1);
+
         jTabbedPane1.addTab("Bitácora", bitácoraPanel);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -270,7 +306,7 @@ public class Servidor extends javax.swing.JFrame {
                         // Inicializa componentes
                         ((Computadora) computadoras.get(computadoras.size() - 1)).setUpComponents();
                         // Manda bloquear
-                        ((Computadora) computadoras.get(computadoras.size() - 1)).bloquea();
+                        ((Computadora) computadoras.get(computadoras.size() - 1)).bloquea(true);
                     } catch (Exception e) {
                     }
 
@@ -314,6 +350,20 @@ public class Servidor extends javax.swing.JFrame {
         comps = equipoPanel.getComponents();
     }
     
+    public void addRegistro(Registro reg){
+        System.out.println("Agregando");
+        List<String> list = new ArrayList<String>();
+
+        list.add(reg.equipo);
+        list.add(reg.inicio.toString());
+        list.add(reg.fin.toString());
+        list.add(String.valueOf(reg.dinero));
+        DefaultTableModel model = (DefaultTableModel) registrosTable.getModel();
+        
+        model.addRow(list.toArray());
+        //registrosTable.setModel(registrosModel);
+    }
+    
     public static boolean isNumeric(String str)  
     {  
       try  
@@ -334,9 +384,11 @@ public class Servidor extends javax.swing.JFrame {
     private javax.swing.JPanel equipoPanel;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JLabel noConnection;
     private static javax.swing.JTextField precioText;
     private static javax.swing.JTextField puertoText;
+    private javax.swing.JTable registrosTable;
     // End of variables declaration//GEN-END:variables
 }

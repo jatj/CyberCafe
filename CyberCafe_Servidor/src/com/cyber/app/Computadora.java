@@ -137,10 +137,11 @@ public class Computadora implements Runnable {
         }
    }
     
-    public void bloquea(){
+    public void bloquea(boolean notify){
         try{
             String msgout = "Bloquea";
-            streamOut.writeUTF(msgout);
+            if(notify)
+                streamOut.writeUTF(msgout);
             desbloquearBtn.setVisible(true);
             bloquearBtn.setVisible(false);
             tiempoPCText.setVisible(false);
@@ -160,6 +161,11 @@ public class Computadora implements Runnable {
                 "El cliente ha decidido bloquearse, serian $"+servidor.PRECIO+" pesos.",
                 "Bloqueado",
                 JOptionPane.INFORMATION_MESSAGE);
+                registroActual.dinero = registroActual.tiempo('m') * servidor.PRECIO;
+                if(registroActual.tiempo('m') == 0){
+                    registroActual.dinero = servidor.PRECIO;
+                }
+                servidor.addRegistro(registroActual);
             }
         }catch(Exception e){}
     }
@@ -187,12 +193,19 @@ public class Computadora implements Runnable {
                                 registroActual.fin = new Date();
                                 tiempoPCText.setText(registroActual.tiempoStr());
                             }
+                            System.out.println(servidor.PRECIO);
+                            System.out.println(registroActual.tiempo('m'));
                             registroActual.dinero = registroActual.tiempo('m') * servidor.PRECIO;
+                            if(registroActual.tiempo('m') == 0){
+                                registroActual.dinero = servidor.PRECIO;
+                            }
+                            
+                            servidor.addRegistro(registroActual);
                             JOptionPane.showMessageDialog(frame,
                             "Se ha terminado el tiempo de desbloqueo, tiene un costo de $" + registroActual.dinero +" pesos, presione de nuevo desbloquear",
                             "Tiempo terminado",
                             JOptionPane.INFORMATION_MESSAGE);
-                            bloquea();
+                            bloquea(false);
                         }
                     };
                     t.start();
@@ -226,6 +239,11 @@ public class Computadora implements Runnable {
                 bloquearBtn.setVisible(false);
                 tiempoPCText.setVisible(false);
                 registros.add(registroActual);
+                registroActual.dinero = registroActual.tiempo('m') * servidor.PRECIO;
+                if(registroActual.tiempo('m') == 0){
+                    registroActual.dinero = servidor.PRECIO;
+                }
+                servidor.addRegistro(registroActual);
             } catch (Exception e) {
             }
         }

@@ -381,6 +381,11 @@ public class Cliente extends javax.swing.JFrame {
                         fin = new Date();
                         tiempoText.setText(tiempoStr(inicio, fin));
                     }
+                    status = "bloqueado";
+                    statusLabel.setText("Bloqueado");
+                    tiempoLabel.setVisible(false);
+                    tiempoText.setVisible(false);
+                    bloquearBtn.setVisible(false);
                     JOptionPane.showMessageDialog(null,
                             "Se ha terminado el tiempo de desbloqueo, tiene un costo de $" + dinero * mins + " pesos, gracias por usar CyberCafe",
                             "Tiempo terminado",
@@ -399,7 +404,7 @@ public class Cliente extends javax.swing.JFrame {
             tiempoText.setVisible(false);
             bloquearBtn.setVisible(false);
             if(t.isAlive()){
-                t.stop();
+                t.interrupt();
                 JOptionPane.showMessageDialog(null,
                 "El administrador te ha bloqueado la computadora",
                 "Bloqueado",
@@ -416,7 +421,7 @@ public class Cliente extends javax.swing.JFrame {
             tiempoText.setVisible(false);
             bloquearBtn.setVisible(false);
             if(t.isAlive()){
-                t.stop();
+                t.interrupt();
                 JOptionPane.showMessageDialog(null,
                 "Haz finalizado, muchas gracias por utilizar CyberCafe",
                 "Bloqueado",
