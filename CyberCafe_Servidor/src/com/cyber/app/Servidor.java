@@ -5,9 +5,11 @@
  */
 package com.cyber.app;
 
+import java.awt.Component;
 import java.awt.Image;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -27,6 +29,8 @@ public class Servidor extends javax.swing.JFrame {
     static ArrayList sockets = new ArrayList<Socket>();
     static Thread coneccionThread;
     static ArrayList computadoras = new ArrayList<Computadora>();
+    boolean someConnection = false;
+    String ip;
     
     public Servidor() {
         initComponents();
@@ -44,9 +48,7 @@ public class Servidor extends javax.swing.JFrame {
 
         jTabbedPane1 = new javax.swing.JTabbedPane();
         equipoPanel = new javax.swing.JPanel();
-        PC1 = new javax.swing.JPanel();
-        computadoraLabel1 = new javax.swing.JLabel();
-        desbloquear1 = new javax.swing.JButton();
+        noConnection = new javax.swing.JLabel();
         bitácoraPanel = new javax.swing.JPanel();
         configuracionPanel = new javax.swing.JPanel();
 
@@ -55,41 +57,16 @@ public class Servidor extends javax.swing.JFrame {
 
         equipoPanel.setLayout(new java.awt.GridLayout(2, 4, 5, 5));
 
-        PC1.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
-
-        computadoraLabel1.setBackground(new java.awt.Color(255, 255, 255));
-        computadoraLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        Image imgPC =new javax.swing.ImageIcon(getClass().getResource("/com/cyber/imagenes/pc.png")).getImage();
-        ImageIcon iconPC = new ImageIcon(imgPC.getScaledInstance(150,150,Image.SCALE_SMOOTH));
-        computadoraLabel1.setIcon(iconPC);
-        computadoraLabel1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-
-        desbloquear1.setText("Desbloquear");
-
-        javax.swing.GroupLayout PC1Layout = new javax.swing.GroupLayout(PC1);
-        PC1.setLayout(PC1Layout);
-        PC1Layout.setHorizontalGroup(
-            PC1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(computadoraLabel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(desbloquear1, javax.swing.GroupLayout.DEFAULT_SIZE, 694, Short.MAX_VALUE)
-        );
-        PC1Layout.setVerticalGroup(
-            PC1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(PC1Layout.createSequentialGroup()
-                .addComponent(computadoraLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 197, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(desbloquear1)
-                .addContainerGap())
-        );
-
-        equipoPanel.add(PC1);
+        noConnection.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        noConnection.setText("No hay computadoras conectadas");
+        equipoPanel.add(noConnection);
 
         jTabbedPane1.addTab("Equipos", equipoPanel);
 
-        bitácoraPanel.setLayout(new java.awt.GridLayout());
+        bitácoraPanel.setLayout(new java.awt.GridLayout(1, 0));
         jTabbedPane1.addTab("Bitácora", bitácoraPanel);
 
-        configuracionPanel.setLayout(new java.awt.GridLayout());
+        configuracionPanel.setLayout(new java.awt.GridLayout(1, 0));
         jTabbedPane1.addTab("Configuración", configuracionPanel);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -139,15 +116,21 @@ public class Servidor extends javax.swing.JFrame {
             public void run() {
                 Servidor serv = new Servidor();
                 
-                //serv.setExtendedState(JFrame.MAXIMIZED_BOTH); 
+                serv.setExtendedState(JFrame.MAXIMIZED_BOTH); 
                 serv.setLocationRelativeTo(null);  
                 serv.setVisible(true);
                 
             }
-        }); 
+        });
     }
     
     public void initServer(){
+        try{
+            InetAddress localhost = InetAddress.getLocalHost();
+            ip = localhost.getHostAddress();
+            noConnection.setText("No hay computadoras conectadas, tu IP: " + ip);
+        } catch (Exception e){}
+        
         //Inicializa servidor
         try {
             ss = new ServerSocket(1201);
@@ -166,6 +149,8 @@ public class Servidor extends javax.swing.JFrame {
                         computadoras.add(new Computadora(s, (Socket) sockets.get(sockets.size() - 1), "PC - " + sockets.size()));
                         ((Computadora) computadoras.get(computadoras.size() - 1)).start();
                         ((Computadora) computadoras.get(computadoras.size() - 1)).bloquea();
+                        // Inicializa componentes
+                        ((Computadora) computadoras.get(computadoras.size() - 1)).setUpComponents();
                     } catch (Exception e) {
                     }
 
@@ -180,19 +165,43 @@ public class Servidor extends javax.swing.JFrame {
             if(((Computadora)computadoras.get(i)).nombrePC.equals(nombre)){
                 computadoras.remove(i);
                 sockets.remove(i);
+                
+                Component[] comps = equipoPanel.getComponents();
+                equipoPanel.remove(comps[i]);
+                equipoPanel.validate();
+                equipoPanel.repaint();
+                
                 System.out.println("PC "+nombre+" eliminada");
                 System.out.println("Cuenta "+computadoras.size());
             }
         }
+        if(computadoras.isEmpty()){
+            System.out.println("No hay conecciones");
+            someConnection = false;
+            equipoPanel.add(noConnection);
+            equipoPanel.validate();
+            equipoPanel.repaint();
+        }
+    }
+    
+    public void agregaPCPanel(javax.swing.JPanel PC){
+        someConnection = true;
+        if(someConnection){
+            System.out.println("Borrando");
+            equipoPanel.remove(noConnection);
+        }
+        
+        equipoPanel.add(PC);
+        equipoPanel.validate();
+
+        equipoPanel.repaint();
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JPanel PC1;
     private javax.swing.JPanel bitácoraPanel;
-    private javax.swing.JLabel computadoraLabel1;
     private javax.swing.JPanel configuracionPanel;
-    private javax.swing.JButton desbloquear1;
     private javax.swing.JPanel equipoPanel;
     private javax.swing.JTabbedPane jTabbedPane1;
+    private javax.swing.JLabel noConnection;
     // End of variables declaration//GEN-END:variables
 }
