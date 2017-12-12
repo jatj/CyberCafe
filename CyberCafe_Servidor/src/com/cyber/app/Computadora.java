@@ -131,6 +131,9 @@ public class Computadora implements Runnable {
         try{
             String msgout = "Bloquea";
             streamOut.writeUTF(msgout);
+            desbloquearBtn.setVisible(true);
+            bloquearBtn.setVisible(false);
+            tiempoPCText.setVisible(false);
         }catch(Exception e){}
     }
     
@@ -138,25 +141,40 @@ public class Computadora implements Runnable {
         String str = JOptionPane.showInputDialog(frame, "Dame el tiempo de uso en minutos", "Desbloquear", JOptionPane.PLAIN_MESSAGE);
         if(isNumeric(str)){
             int mins = Integer.parseInt(str);
-            try {
-                String msgout = "Desbloquea";
-                streamOut.writeUTF(msgout);
-                desbloquearBtn.setVisible(false);
-                bloquearBtn.setVisible(true);
-                tiempoPCText.setVisible(true);
-                status = "desbloqueado";
-                registroActual = new Registro(nombrePC, new Date(), 0);
-                Thread t = new Thread() {
-                    public void run() {
-                        while(status.equals("desbloqueado")){
+            if(mins>0){
+                try {
+                    String msgout = "Desbloquea";
+                    streamOut.writeUTF(msgout);
+                    desbloquearBtn.setVisible(false);
+                    bloquearBtn.setVisible(true);
+                    tiempoPCText.setVisible(true);
+                    status = "desbloqueado";
+                    registroActual = new Registro(nombrePC, new Date(), 0);
+                    Thread t = new Thread() {
+                        public void run() {
                             registroActual.fin = new Date();
-                            tiempoPCText.setText(registroActual.tiempoStr());
+                            while (status.equals("desbloqueado") && registroActual.tiempo('m') < mins) {
+                                registroActual.fin = new Date();
+                                tiempoPCText.setText(registroActual.tiempoStr());
+                            }
+                            registroActual.dinero = registroActual.tiempo('m') * servidor.PRECIO;
+                            JOptionPane.showMessageDialog(frame,
+                            "Se ha terminado el tiempo de desbloqueo, tiene un costo de $" + registroActual.dinero +" pesos, presione de nuevo desbloquear",
+                            "Tiempo terminado",
+                            JOptionPane.INFORMATION_MESSAGE);
+                            bloquea();
                         }
-                    }
-                };
-                t.start();
-            } catch (Exception e) {
+                    };
+                    t.start();
+                } catch (Exception e) {
+                }
+            }else{
+                JOptionPane.showMessageDialog(frame,
+                "Los minutos tienen que ser mayores a 0",
+                "Error desbloqueando",
+                JOptionPane.ERROR_MESSAGE);
             }
+            
         }else{
             JOptionPane.showMessageDialog(frame,
             "No es un numero valido",

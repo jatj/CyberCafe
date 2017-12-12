@@ -242,11 +242,19 @@ public class Cliente extends javax.swing.JFrame {
             din = new DataInputStream(s.getInputStream());
             dout = new DataOutputStream(s.getOutputStream());
             System.out.println("Conectado");
-            String msgin = "";
             connected = true;
             tituloLabel.setVisible(false);
             configPanel.setVisible(false);
             statusLabel.setVisible(true);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null,
+            "No pudimos conectar con el socket",
+            "Error conectando",
+            JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        try {
+            String msgin = "";
             while (!msgin.equals("exit") && connected) {
 
                 msgin = din.readUTF();
@@ -263,8 +271,8 @@ public class Cliente extends javax.swing.JFrame {
             s.close();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null,
-            "No pudimos conectar con el socket",
-            "Error conectando",
+            "Ocurrio un error durante la comunicación",
+            "Error socket",
             JOptionPane.ERROR_MESSAGE);
         }
     }

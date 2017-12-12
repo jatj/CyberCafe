@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -29,7 +30,8 @@ public class Servidor extends javax.swing.JFrame {
      * Creates new form Servidor
      */
     static String IP = "";
-    static int PUERTO = 1201;
+    public static int PUERTO = 1201;
+    public static int PRECIO = 5;
     static ServerSocket ss;
     static ArrayList sockets = new ArrayList<Socket>();
     static Thread coneccionThread;
@@ -42,7 +44,10 @@ public class Servidor extends javax.swing.JFrame {
     public Servidor() {
         frame = this;
         initComponents();
-        initServer();
+        //initServer();
+        noConnection.setVisible(false);
+        puertoText.setText(String.valueOf(PUERTO));
+        precioText.setText(String.valueOf(PRECIO));
     }
 
     /**
@@ -56,14 +61,74 @@ public class Servidor extends javax.swing.JFrame {
 
         jTabbedPane1 = new javax.swing.JTabbedPane();
         equipoPanel = new javax.swing.JPanel();
+        configPanel = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
+        puertoText = new javax.swing.JTextField();
+        jLabel2 = new javax.swing.JLabel();
+        precioText = new javax.swing.JTextField();
+        conectarBtn = new javax.swing.JToggleButton();
         noConnection = new javax.swing.JLabel();
         bitácoraPanel = new javax.swing.JPanel();
-        configuracionPanel = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setResizable(false);
 
         equipoPanel.setLayout(new java.awt.GridLayout(2, 4, 5, 5));
+
+        jLabel1.setText("Puerto: ");
+
+        puertoText.setText("jTextField1");
+
+        jLabel2.setText("Precio por hora: ");
+
+        precioText.setText("jTextField1");
+        precioText.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                precioTextActionPerformed(evt);
+            }
+        });
+
+        conectarBtn.setText("Iniciar");
+        conectarBtn.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                conectarBtnMouseClicked(evt);
+            }
+        });
+        conectarBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                conectarBtnActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout configPanelLayout = new javax.swing.GroupLayout(configPanel);
+        configPanel.setLayout(configPanelLayout);
+        configPanelLayout.setHorizontalGroup(
+            configPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(configPanelLayout.createSequentialGroup()
+                .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(puertoText, javax.swing.GroupLayout.PREFERRED_SIZE, 124, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(configPanelLayout.createSequentialGroup()
+                .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, 575, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(precioText, javax.swing.GroupLayout.PREFERRED_SIZE, 124, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addComponent(conectarBtn, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+        configPanelLayout.setVerticalGroup(
+            configPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(configPanelLayout.createSequentialGroup()
+                .addGroup(configPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(puertoText, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(configPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel2)
+                    .addComponent(precioText, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 172, Short.MAX_VALUE)
+                .addComponent(conectarBtn))
+        );
+
+        equipoPanel.add(configPanel);
 
         noConnection.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         noConnection.setText("No hay computadoras conectadas");
@@ -73,9 +138,6 @@ public class Servidor extends javax.swing.JFrame {
 
         bitácoraPanel.setLayout(new java.awt.GridLayout(1, 0));
         jTabbedPane1.addTab("Bitácora", bitácoraPanel);
-
-        configuracionPanel.setLayout(new java.awt.GridLayout(1, 0));
-        jTabbedPane1.addTab("Configuración", configuracionPanel);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -90,6 +152,29 @@ public class Servidor extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void precioTextActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_precioTextActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_precioTextActionPerformed
+
+    private void conectarBtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_conectarBtnMouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_conectarBtnMouseClicked
+
+    private void conectarBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_conectarBtnActionPerformed
+        // TODO add your handling code here:
+        if(JOptionPane.showConfirmDialog(frame,
+        "Estas seguro que deseas reiniciar el servidor",
+        "Reiniciar",
+        JOptionPane.YES_NO_OPTION) == 0){
+            Thread t = new Thread() {
+                public void run() {
+                    initServer();
+                }
+            };
+            t.start();
+        }
+    }//GEN-LAST:event_conectarBtnActionPerformed
 
     
     /**
@@ -149,7 +234,9 @@ public class Servidor extends javax.swing.JFrame {
                     ip += interfaceStr;
             }
             ip += "<html>";
+            equipoPanel.remove(configPanel);
             noConnection.setText(ip);
+            noConnection.setVisible(true);
         } catch (Exception e){}
         
         //Inicializa servidor
@@ -158,6 +245,8 @@ public class Servidor extends javax.swing.JFrame {
         } catch (Exception e) {
         }
         Servidor s = this;
+        computadoras = new ArrayList();
+        sockets = new ArrayList();
         //Inicializa socket
         coneccionThread = new Thread(new Runnable() {
             public void run() {
@@ -218,9 +307,14 @@ public class Servidor extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel bitácoraPanel;
-    private javax.swing.JPanel configuracionPanel;
+    private javax.swing.JToggleButton conectarBtn;
+    private static javax.swing.JPanel configPanel;
     private javax.swing.JPanel equipoPanel;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JLabel noConnection;
+    private static javax.swing.JTextField precioText;
+    private static javax.swing.JTextField puertoText;
     // End of variables declaration//GEN-END:variables
 }
