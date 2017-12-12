@@ -10,9 +10,12 @@ import java.awt.Image;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 
@@ -29,8 +32,8 @@ public class Servidor extends javax.swing.JFrame {
     static ArrayList sockets = new ArrayList<Socket>();
     static Thread coneccionThread;
     static ArrayList computadoras = new ArrayList<Computadora>();
-    boolean someConnection = false;
-    String ip;
+    boolean someConnection = false, foundIp = false;
+    String ip, interfaceStr;
     
     public Servidor() {
         initComponents();
@@ -125,10 +128,23 @@ public class Servidor extends javax.swing.JFrame {
     }
     
     public void initServer(){
+        // Obtiene información de las interfaces de red con ips
         try{
-            InetAddress localhost = InetAddress.getLocalHost();
-            ip = localhost.getHostAddress();
-            noConnection.setText("No hay computadoras conectadas, tu IP: " + ip);
+            ip = "<html>No hay computadoras conectadas.";
+            Enumeration<NetworkInterface> nets = NetworkInterface.getNetworkInterfaces();
+            for (NetworkInterface netint : Collections.list(nets)){
+                foundIp = false;
+                interfaceStr = "<br><br>IP " + netint.getName() + ":";
+                Enumeration<InetAddress> inetAddresses = netint.getInetAddresses();
+                for (InetAddress inetAddress : Collections.list(inetAddresses)) {
+                    foundIp = true;
+                    interfaceStr += "<br>" + inetAddress;
+                }
+                if(foundIp)
+                    ip += interfaceStr;
+            }
+            ip += "<html>";
+            noConnection.setText(ip);
         } catch (Exception e){}
         
         //Inicializa servidor
