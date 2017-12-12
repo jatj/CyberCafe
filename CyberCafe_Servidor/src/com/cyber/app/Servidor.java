@@ -164,8 +164,8 @@ public class Servidor extends javax.swing.JFrame {
     private void conectarBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_conectarBtnActionPerformed
         // TODO add your handling code here:
         if(JOptionPane.showConfirmDialog(frame,
-        "Estas seguro que deseas reiniciar el servidor",
-        "Reiniciar",
+        "Estas seguro que deseas iniciar el servidor",
+        "Iniciar CyberCafe",
         JOptionPane.YES_NO_OPTION) == 0){
             Thread t = new Thread() {
                 public void run() {

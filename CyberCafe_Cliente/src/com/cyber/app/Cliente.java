@@ -8,6 +8,7 @@ package com.cyber.app;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.net.Socket;
+import java.text.DecimalFormat;
 import java.util.Date;
 import java.util.regex.Pattern;
 import javax.swing.JOptionPane;
@@ -29,10 +30,10 @@ public class Cliente extends javax.swing.JFrame {
     static boolean connected = false;
     // bloqueado desbloqueado
     static String status = "bloqueado";
-    
+    static Thread t;
     public Cliente() {
         initComponents();
-        statusLabel.setVisible(false);
+        connectedPanel.setVisible(false);
         ipText.setText(IP);
         puertoText.setText(String.valueOf(PUERTO));
     }
@@ -47,14 +48,18 @@ public class Cliente extends javax.swing.JFrame {
     private void initComponents() {
 
         jPanel1 = new javax.swing.JPanel();
+        connectedPanel = new javax.swing.JPanel();
         statusLabel = new javax.swing.JLabel();
+        tiempoLabel = new javax.swing.JLabel();
+        tiempoText = new javax.swing.JTextField();
+        bloquearBtn = new javax.swing.JButton();
         configPanel = new javax.swing.JPanel();
+        tituloLabel = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
         ipText = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
         puertoText = new javax.swing.JTextField();
         conectaBtn = new javax.swing.JToggleButton();
-        tituloLabel = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         addWindowListener(new java.awt.event.WindowAdapter() {
@@ -65,6 +70,50 @@ public class Cliente extends javax.swing.JFrame {
 
         statusLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         statusLabel.setText("Bloqueado");
+
+        tiempoLabel.setText("Tiempo: ");
+
+        tiempoText.setText("jTextField1");
+        tiempoText.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                tiempoTextActionPerformed(evt);
+            }
+        });
+
+        bloquearBtn.setText("Bloquear");
+        bloquearBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bloquearBtnActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout connectedPanelLayout = new javax.swing.GroupLayout(connectedPanel);
+        connectedPanel.setLayout(connectedPanelLayout);
+        connectedPanelLayout.setHorizontalGroup(
+            connectedPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, connectedPanelLayout.createSequentialGroup()
+                .addComponent(tiempoLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(tiempoText, javax.swing.GroupLayout.PREFERRED_SIZE, 134, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addComponent(statusLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(bloquearBtn, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+        connectedPanelLayout.setVerticalGroup(
+            connectedPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(connectedPanelLayout.createSequentialGroup()
+                .addComponent(statusLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(connectedPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(tiempoLabel)
+                    .addComponent(tiempoText, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(bloquearBtn)
+                .addContainerGap(40, Short.MAX_VALUE))
+        );
+
+        tituloLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        tituloLabel.setText("Cyber Cafe");
+        tituloLabel.setToolTipText("");
 
         jLabel1.setText("IP: ");
 
@@ -104,14 +153,20 @@ public class Cliente extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(puertoText, javax.swing.GroupLayout.PREFERRED_SIZE, 124, javax.swing.GroupLayout.PREFERRED_SIZE))
             .addComponent(conectaBtn, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(configPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(tituloLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
         configPanelLayout.setVerticalGroup(
             configPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(configPanelLayout.createSequentialGroup()
-                .addGroup(configPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(ipText, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(tituloLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(configPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(ipText, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(31, 31, 31)
                 .addGroup(configPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
                     .addComponent(puertoText, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -119,27 +174,20 @@ public class Cliente extends javax.swing.JFrame {
                 .addComponent(conectaBtn))
         );
 
-        tituloLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        tituloLabel.setText("Cyber Cafe");
-        tituloLabel.setToolTipText("");
-
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(statusLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(configPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(tituloLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(connectedPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addComponent(statusLabel)
+                .addComponent(connectedPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(tituloLabel)
-                .addGap(32, 32, 32)
                 .addComponent(configPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 128, Short.MAX_VALUE))
+                .addGap(0, 66, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -199,6 +247,23 @@ public class Cliente extends javax.swing.JFrame {
     private void conectaBtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_conectaBtnMouseClicked
         // TODO add your handling code here:
     }//GEN-LAST:event_conectaBtnMouseClicked
+
+    private void tiempoTextActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tiempoTextActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_tiempoTextActionPerformed
+
+    private void bloquearBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bloquearBtnActionPerformed
+        // TODO add your handling code here
+        try {
+            String msgout = "Bloquea";
+            dout.writeUTF(msgout);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null,
+            "Ocurrio un error durante la comunicación",
+            "Error socket",
+            JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_bloquearBtnActionPerformed
     
     /**
      * @param args the command line arguments
@@ -245,7 +310,7 @@ public class Cliente extends javax.swing.JFrame {
             connected = true;
             tituloLabel.setVisible(false);
             configPanel.setVisible(false);
-            statusLabel.setVisible(true);
+            connectedPanel.setVisible(true);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null,
             "No pudimos conectar con el socket",
@@ -266,6 +331,9 @@ public class Cliente extends javax.swing.JFrame {
                     case "Bloquea":
                         bloquea();
                         break;
+                    case "Bloquea2":
+                        bloquea2();
+                        break;
                 }
             }
             s.close();
@@ -276,20 +344,87 @@ public class Cliente extends javax.swing.JFrame {
             JOptionPane.ERROR_MESSAGE);
         }
     }
-    
+    public static long tiempo(char type, Date inicio, Date fin){
+        long diff = -1;
+        switch(type){
+            case 's':
+                diff = (fin.getTime() - inicio.getTime())/1000;
+                break;
+            case 'm':
+                diff = (fin.getTime() - inicio.getTime())/(1000*60);
+                break;
+            case 'h':
+                diff = (fin.getTime() - inicio.getTime())/(1000*60*60);
+                break;
+        }
+        return diff;
+    }
+    public static String tiempoStr(Date inicio, Date fin){
+        DecimalFormat decimalFormat = new DecimalFormat("00");
+        return String.format("%s:%s:%s", decimalFormat.format(tiempo('h', inicio, fin)), decimalFormat.format(tiempo('m', inicio, fin)), decimalFormat.format(tiempo('s', inicio, fin)));
+    }
     public static void desbloquea(){
         try{
             status = "desbloqueado";
-            statusLabel.setText(status);
+            statusLabel.setText("Desbloqueado");
+            tiempoLabel.setVisible(true);
+            tiempoText.setVisible(true);
+            bloquearBtn.setVisible(true);
+            String tiempo = din.readUTF();
+            int dinero = Integer.parseInt(din.readUTF());
+            t = new Thread() {
+                public void run() {
+                    Date inicio = new Date();
+                    Date fin = new Date();
+                    int mins = Integer.parseInt(tiempo);
+                    while (status.equals("desbloqueado") && tiempo('m', inicio, fin) < mins) {
+                        fin = new Date();
+                        tiempoText.setText(tiempoStr(inicio, fin));
+                    }
+                    JOptionPane.showMessageDialog(null,
+                            "Se ha terminado el tiempo de desbloqueo, tiene un costo de $" + dinero * mins + " pesos, gracias por usar CyberCafe",
+                            "Tiempo terminado",
+                            JOptionPane.INFORMATION_MESSAGE);
+                }
+            };
+            t.start();
         }catch(Exception ex){}
     }
     
     public static void bloquea(){
         try{
             status = "bloqueado";
-            statusLabel.setText(status);
+            statusLabel.setText("Bloqueado");
+            tiempoLabel.setVisible(false);
+            tiempoText.setVisible(false);
+            bloquearBtn.setVisible(false);
+            if(t.isAlive()){
+                t.stop();
+                JOptionPane.showMessageDialog(null,
+                "El administrador te ha bloqueado la computadora",
+                "Bloqueado",
+                JOptionPane.INFORMATION_MESSAGE);
+            }
         }catch(Exception ex){}
     }
+    
+    public static void bloquea2(){
+        try{
+            status = "bloqueado";
+            statusLabel.setText("Bloqueado");
+            tiempoLabel.setVisible(false);
+            tiempoText.setVisible(false);
+            bloquearBtn.setVisible(false);
+            if(t.isAlive()){
+                t.stop();
+                JOptionPane.showMessageDialog(null,
+                "Haz finalizado, muchas gracias por utilizar CyberCafe",
+                "Bloqueado",
+                JOptionPane.INFORMATION_MESSAGE);
+            }
+        }catch(Exception ex){}
+    }
+    
     
     private static final Pattern PATTERN = Pattern.compile(
         "^(([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.){3}([01]?\\d\\d?|2[0-4]\\d|25[0-5])$");
@@ -312,14 +447,18 @@ public class Cliente extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private static javax.swing.JButton bloquearBtn;
     private javax.swing.JToggleButton conectaBtn;
     private static javax.swing.JPanel configPanel;
+    private static javax.swing.JPanel connectedPanel;
     private static javax.swing.JTextField ipText;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
     private static javax.swing.JTextField puertoText;
     private static javax.swing.JLabel statusLabel;
+    private static javax.swing.JLabel tiempoLabel;
+    private static javax.swing.JTextField tiempoText;
     private static javax.swing.JLabel tituloLabel;
     // End of variables declaration//GEN-END:variables
 }

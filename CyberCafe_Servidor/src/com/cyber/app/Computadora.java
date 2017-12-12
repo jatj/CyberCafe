@@ -56,7 +56,7 @@ final class Registro {
 
 public class Computadora implements Runnable {
     
-    private Thread thread;
+    private Thread thread, t;
     private Servidor servidor;
     private Socket socket;
     private DataInputStream streamIn;
@@ -110,12 +110,22 @@ public class Computadora implements Runnable {
             while (!msgIn.equals("Desconecta")) {
                 try {
                     msgIn = streamIn.readUTF();
+                    if(msgIn.equals("Bloquea")){
+                        bloquea2();
+                    }
                     System.out.println(msgIn);
                 } catch (Exception e) {
                 }
             }
         }catch(Exception e){}
         System.out.println("Thread " + nombrePC + " terminando.");
+        if(t.isAlive()){
+            t.stop();
+            JOptionPane.showMessageDialog(null,
+            "El cliente se ha desconectado, deteniendo hilos.",
+            "Bloqueado",
+            JOptionPane.INFORMATION_MESSAGE);
+        }
         servidor.eliminaComputadora(nombrePC, index);
     }
    
@@ -137,6 +147,24 @@ public class Computadora implements Runnable {
         }catch(Exception e){}
     }
     
+    public void bloquea2(){
+        try{
+            String msgout = "Bloquea2";
+            streamOut.writeUTF(msgout);
+            desbloquearBtn.setVisible(true);
+            bloquearBtn.setVisible(false);
+            tiempoPCText.setVisible(false);
+            if(t.isAlive()){
+                t.stop();
+                JOptionPane.showMessageDialog(null,
+                "El cliente ha decidido bloquearse, serian $"+servidor.PRECIO+" pesos.",
+                "Bloqueado",
+                JOptionPane.INFORMATION_MESSAGE);
+            }
+        }catch(Exception e){}
+    }
+    
+    
     public void desbloquear(java.awt.event.ActionEvent evt){
         String str = JOptionPane.showInputDialog(frame, "Dame el tiempo de uso en minutos", "Desbloquear", JOptionPane.PLAIN_MESSAGE);
         if(isNumeric(str)){
@@ -145,12 +173,14 @@ public class Computadora implements Runnable {
                 try {
                     String msgout = "Desbloquea";
                     streamOut.writeUTF(msgout);
+                    streamOut.writeUTF(str);
+                    streamOut.writeUTF(String.valueOf(servidor.PRECIO));
                     desbloquearBtn.setVisible(false);
                     bloquearBtn.setVisible(true);
                     tiempoPCText.setVisible(true);
                     status = "desbloqueado";
                     registroActual = new Registro(nombrePC, new Date(), 0);
-                    Thread t = new Thread() {
+                    t = new Thread() {
                         public void run() {
                             registroActual.fin = new Date();
                             while (status.equals("desbloqueado") && registroActual.tiempo('m') < mins) {
