@@ -32,10 +32,13 @@ public class Servidor extends javax.swing.JFrame {
     static ArrayList sockets = new ArrayList<Socket>();
     static Thread coneccionThread;
     static ArrayList computadoras = new ArrayList<Computadora>();
-    boolean someConnection = false, foundIp = false;
+    Component[] comps;
+    boolean foundIp = false;
     String ip, interfaceStr;
+    JFrame frame;
     
     public Servidor() {
+        frame = this;
         initComponents();
         initServer();
     }
@@ -130,11 +133,11 @@ public class Servidor extends javax.swing.JFrame {
     public void initServer(){
         // Obtiene información de las interfaces de red con ips
         try{
-            ip = "<html>No hay computadoras conectadas.";
+            ip = "<html>No hay computadoras conectadas, <br>porfavor asegurate que esten conecadas a alguna de las siguientes IPs.";
             Enumeration<NetworkInterface> nets = NetworkInterface.getNetworkInterfaces();
             for (NetworkInterface netint : Collections.list(nets)){
                 foundIp = false;
-                interfaceStr = "<br><br>IP " + netint.getName() + ":";
+                interfaceStr = "<br><br>Interfaz " + netint.getName() + ":";
                 Enumeration<InetAddress> inetAddresses = netint.getInetAddresses();
                 for (InetAddress inetAddress : Collections.list(inetAddresses)) {
                     foundIp = true;
@@ -162,11 +165,12 @@ public class Servidor extends javax.swing.JFrame {
                         // Servidor acepta conecciones
                         sockets.add(ss.accept());
                         System.out.println("Conección realizada");
-                        computadoras.add(new Computadora(s, (Socket) sockets.get(sockets.size() - 1), "PC - " + sockets.size()));
+                        computadoras.add(new Computadora(frame, s, (Socket) sockets.get(sockets.size() - 1), "PC - " + sockets.size(),sockets.size() - 1));
                         ((Computadora) computadoras.get(computadoras.size() - 1)).start();
-                        ((Computadora) computadoras.get(computadoras.size() - 1)).bloquea();
                         // Inicializa componentes
                         ((Computadora) computadoras.get(computadoras.size() - 1)).setUpComponents();
+                        // Manda bloquear
+                        ((Computadora) computadoras.get(computadoras.size() - 1)).bloquea();
                     } catch (Exception e) {
                     }
 
@@ -176,41 +180,38 @@ public class Servidor extends javax.swing.JFrame {
         coneccionThread.start();
     }
     
-    public void eliminaComputadora(String nombre){
-        for(int i = 0; i < computadoras.size(); i++){
-            if(((Computadora)computadoras.get(i)).nombrePC.equals(nombre)){
-                computadoras.remove(i);
-                sockets.remove(i);
-                
-                Component[] comps = equipoPanel.getComponents();
-                equipoPanel.remove(comps[i]);
-                equipoPanel.validate();
-                equipoPanel.repaint();
-                
-                System.out.println("PC "+nombre+" eliminada");
-                System.out.println("Cuenta "+computadoras.size());
-            }
-        }
+    public void eliminaComputadora(String nombre, int index){
+        computadoras.remove(index);
+        sockets.remove(index);
+
+        equipoPanel.remove(comps[index]);
+        equipoPanel.validate();
+        equipoPanel.repaint();
+
+        System.out.println("PC "+nombre+" eliminada");
+        System.out.println("Cuenta "+computadoras.size());
         if(computadoras.isEmpty()){
             System.out.println("No hay conecciones");
-            someConnection = false;
             equipoPanel.add(noConnection);
             equipoPanel.validate();
             equipoPanel.repaint();
         }
+        comps = equipoPanel.getComponents();
     }
     
     public void agregaPCPanel(javax.swing.JPanel PC){
-        someConnection = true;
-        if(someConnection){
-            System.out.println("Borrando");
+        if(computadoras.size() == 1){
             equipoPanel.remove(noConnection);
+            this.pack();
+            this.setExtendedState(JFrame.MAXIMIZED_BOTH); 
+            this.setLocationRelativeTo(null); 
         }
         
         equipoPanel.add(PC);
         equipoPanel.validate();
 
         equipoPanel.repaint();
+        comps = equipoPanel.getComponents();
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

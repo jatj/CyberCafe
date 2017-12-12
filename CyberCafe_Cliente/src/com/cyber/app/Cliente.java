@@ -23,6 +23,8 @@ public class Cliente extends javax.swing.JFrame {
     static DataInputStream din;
     static DataOutputStream dout;
     static boolean connected = false;
+    // bloqueado desbloqueado
+    static String status = "bloqueado";
     
     public Cliente() {
         initComponents();
@@ -37,6 +39,9 @@ public class Cliente extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jPanel1 = new javax.swing.JPanel();
+        statusLabel = new javax.swing.JLabel();
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent evt) {
@@ -44,15 +49,31 @@ public class Cliente extends javax.swing.JFrame {
             }
         });
 
+        statusLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        statusLabel.setText("Bloqueado");
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(statusLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addComponent(statusLabel)
+                .addGap(0, 286, Short.MAX_VALUE))
+        );
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         pack();
@@ -115,12 +136,35 @@ public class Cliente extends javax.swing.JFrame {
                 
                 msgin=din.readUTF();
                 System.out.println(msgin);
-                
+                switch(msgin){
+                    case "Desbloquea":
+                        desbloquea();
+                        break;
+                    case "Bloquea":
+                        bloquea();
+                        break;
+                }
             }
             s.close();
         }catch(Exception e){}
     }
+    
+    public static void desbloquea(){
+        try{
+            status = "desbloqueado";
+            statusLabel.setText(status);
+        }catch(Exception ex){}
+    }
+    
+    public static void bloquea(){
+        try{
+            status = "bloqueado";
+            statusLabel.setText(status);
+        }catch(Exception ex){}
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JPanel jPanel1;
+    private static javax.swing.JLabel statusLabel;
     // End of variables declaration//GEN-END:variables
 }

@@ -9,9 +9,12 @@ import java.awt.Image;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.net.Socket;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -22,6 +25,12 @@ final class Registro {
     public Date inicio;
     public Date fin;
     public float dinero;
+
+    public Registro(String equipo, Date inicio, float dinero) {
+        this.equipo = equipo;
+        this.inicio = inicio;
+        this.dinero = dinero;
+    }
     
     public float tiempo(char type){
         float diff = -1;
@@ -38,6 +47,11 @@ final class Registro {
         }
         return diff;
     }
+    
+    public String tiempoStr(){
+        DecimalFormat decimalFormat = new DecimalFormat("00");
+        return String.format("%s:%s:%s", decimalFormat.format(tiempo('h')), decimalFormat.format(tiempo('m')), decimalFormat.format(tiempo('s')));
+    }
 }
 
 public class Computadora implements Runnable {
@@ -48,7 +62,9 @@ public class Computadora implements Runnable {
     private DataInputStream streamIn;
     private DataOutputStream streamOut;
     
+    public JFrame frame;
     public String nombrePC;
+    public int index;
     public boolean estatus;
     public String msgIn;
     public Registro registroActual;
@@ -61,10 +77,14 @@ public class Computadora implements Runnable {
     public javax.swing.JLabel noDisponibleLabel;
     public javax.swing.JTextField tiempoPCText;
     
+    String status = "bloqueado";
+    
 
-    public Computadora(Servidor serv, Socket s, String nombre) {
+    public Computadora(JFrame f, Servidor serv, Socket s, String nombre, int i) {
+        frame = f;
         servidor = serv;
         socket = s;
+        index = i;
         try {
             streamIn = new DataInputStream(socket.getInputStream());
             streamOut = new DataOutputStream(socket.getOutputStream());
@@ -96,7 +116,7 @@ public class Computadora implements Runnable {
             }
         }catch(Exception e){}
         System.out.println("Thread " + nombrePC + " terminando.");
-        servidor.eliminaComputadora(nombrePC);
+        servidor.eliminaComputadora(nombrePC, index);
     }
    
     public void start () {
@@ -114,11 +134,53 @@ public class Computadora implements Runnable {
         }catch(Exception e){}
     }
     
-    public void desBloquea(){
-        try{
-            String msgout = "Desbloquea";
-            streamOut.writeUTF(msgout);
-        }catch(Exception e){}
+    public void desbloquear(java.awt.event.ActionEvent evt){
+        String str = JOptionPane.showInputDialog(frame, "Dame el tiempo de uso en minutos", "Desbloquear", JOptionPane.PLAIN_MESSAGE);
+        if(isNumeric(str)){
+            int mins = Integer.parseInt(str);
+            try {
+                String msgout = "Desbloquea";
+                streamOut.writeUTF(msgout);
+                desbloquearBtn.setVisible(false);
+                bloquearBtn.setVisible(true);
+                tiempoPCText.setVisible(true);
+                status = "desbloqueado";
+                registroActual = new Registro(nombrePC, new Date(), 0);
+                Thread t = new Thread() {
+                    public void run() {
+                        while(status.equals("desbloqueado")){
+                            registroActual.fin = new Date();
+                            tiempoPCText.setText(registroActual.tiempoStr());
+                        }
+                    }
+                };
+                t.start();
+            } catch (Exception e) {
+            }
+        }else{
+            JOptionPane.showMessageDialog(frame,
+            "No es un numero valido",
+            "Error desbloqueando",
+            JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    
+    public void bloquear(java.awt.event.ActionEvent evt){
+        if(JOptionPane.showConfirmDialog(frame,
+        "Estas seguro que deseas bloquear la computadora: " + nombrePC,
+        "Bloquear",
+        JOptionPane.YES_NO_OPTION) == 0){
+            status = "bloqueado";
+            try {
+                String msgout = "Bloquea";
+                streamOut.writeUTF(msgout);
+                desbloquearBtn.setVisible(true);
+                bloquearBtn.setVisible(false);
+                tiempoPCText.setVisible(false);
+                registros.add(registroActual);
+            } catch (Exception e) {
+            }
+        }
     }
     
     public void setUpComponents(){
@@ -133,15 +195,29 @@ public class Computadora implements Runnable {
         computadoraLabel.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
 
         desbloquearBtn.setText("Desbloquear");
+        desbloquearBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                   desbloquear(evt);
+            }
+        });
+        
 
         tiempoPCText.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         tiempoPCText.setText("00:00:00");
+        tiempoPCText.setVisible(false);
 
         bloquearBtn.setText("Bloquear");
+        bloquearBtn.setVisible(false);
+        bloquearBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                   bloquear(evt);
+            }
+        });
 
         noDisponibleLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         noDisponibleLabel.setText("No disponible");
         noDisponibleLabel.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        noDisponibleLabel.setVisible(false);
 
         javax.swing.GroupLayout PC1Layout = new javax.swing.GroupLayout(PC);
         PC.setLayout(PC1Layout);
@@ -169,5 +245,18 @@ public class Computadora implements Runnable {
                 .addComponent(noDisponibleLabel))
         );
         servidor.agregaPCPanel(PC);
+    }
+    
+    public static boolean isNumeric(String str)  
+    {  
+      try  
+      {  
+        double d = Double.parseDouble(str);  
+      }  
+      catch(NumberFormatException nfe)  
+      {  
+        return false;  
+      }  
+      return true;  
     }
 }
