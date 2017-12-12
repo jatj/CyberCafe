@@ -28,6 +28,8 @@ public class Servidor extends javax.swing.JFrame {
     /**
      * Creates new form Servidor
      */
+    static String IP = "";
+    static int PUERTO = 1201;
     static ServerSocket ss;
     static ArrayList sockets = new ArrayList<Socket>();
     static Thread coneccionThread;
@@ -152,7 +154,7 @@ public class Servidor extends javax.swing.JFrame {
         
         //Inicializa servidor
         try {
-            ss = new ServerSocket(1201);
+            ss = new ServerSocket(PUERTO);
         } catch (Exception e) {
         }
         Servidor s = this;

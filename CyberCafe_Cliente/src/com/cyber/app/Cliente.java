@@ -8,6 +8,9 @@ package com.cyber.app;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.net.Socket;
+import java.util.Date;
+import java.util.regex.Pattern;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -18,7 +21,8 @@ public class Cliente extends javax.swing.JFrame {
     /**
      * Creates new form Cliente
      */
-    
+    static String IP = "127.0.0.1";
+    static int PUERTO = 1201;
     static Socket s;
     static DataInputStream din;
     static DataOutputStream dout;
@@ -28,6 +32,9 @@ public class Cliente extends javax.swing.JFrame {
     
     public Cliente() {
         initComponents();
+        statusLabel.setVisible(false);
+        ipText.setText(IP);
+        puertoText.setText(String.valueOf(PUERTO));
     }
 
     /**
@@ -41,6 +48,13 @@ public class Cliente extends javax.swing.JFrame {
 
         jPanel1 = new javax.swing.JPanel();
         statusLabel = new javax.swing.JLabel();
+        configPanel = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
+        ipText = new javax.swing.JTextField();
+        jLabel2 = new javax.swing.JLabel();
+        puertoText = new javax.swing.JTextField();
+        conectaBtn = new javax.swing.JToggleButton();
+        tituloLabel = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         addWindowListener(new java.awt.event.WindowAdapter() {
@@ -52,17 +66,80 @@ public class Cliente extends javax.swing.JFrame {
         statusLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         statusLabel.setText("Bloqueado");
 
+        jLabel1.setText("IP: ");
+
+        ipText.setText("jTextField1");
+
+        jLabel2.setText("Puerto: ");
+
+        puertoText.setText("jTextField1");
+        puertoText.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                puertoTextActionPerformed(evt);
+            }
+        });
+
+        conectaBtn.setText("Conectar");
+        conectaBtn.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                conectaBtnMouseClicked(evt);
+            }
+        });
+        conectaBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                conectaBtnActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout configPanelLayout = new javax.swing.GroupLayout(configPanel);
+        configPanel.setLayout(configPanelLayout);
+        configPanelLayout.setHorizontalGroup(
+            configPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(configPanelLayout.createSequentialGroup()
+                .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(ipText, javax.swing.GroupLayout.PREFERRED_SIZE, 124, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(configPanelLayout.createSequentialGroup()
+                .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, 272, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(puertoText, javax.swing.GroupLayout.PREFERRED_SIZE, 124, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addComponent(conectaBtn, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+        configPanelLayout.setVerticalGroup(
+            configPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(configPanelLayout.createSequentialGroup()
+                .addGroup(configPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(ipText, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(configPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel2)
+                    .addComponent(puertoText, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 32, Short.MAX_VALUE)
+                .addComponent(conectaBtn))
+        );
+
+        tituloLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        tituloLabel.setText("Cyber Cafe");
+        tituloLabel.setToolTipText("");
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(statusLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
+            .addComponent(statusLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(configPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(tituloLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addComponent(statusLabel)
-                .addGap(0, 286, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(tituloLabel)
+                .addGap(32, 32, 32)
+                .addComponent(configPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 128, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -89,6 +166,39 @@ public class Cliente extends javax.swing.JFrame {
             s.close();
         }catch(Exception e){}
     }//GEN-LAST:event_formWindowClosing
+
+    private void puertoTextActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_puertoTextActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_puertoTextActionPerformed
+
+    private void conectaBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_conectaBtnActionPerformed
+        // TODO add your handling code here:
+        IP = ipText.getText();
+        if(!validaIPv4(IP)){
+            JOptionPane.showMessageDialog(this,
+            "No es una dirección IPv4",
+            "Error conectando",
+            JOptionPane.ERROR_MESSAGE);
+        }else if(!isNumeric(puertoText.getText())){
+            JOptionPane.showMessageDialog(this,
+            "No es un puerto válido",
+            "Error conectando",
+            JOptionPane.ERROR_MESSAGE);
+        }else{
+            PUERTO = Integer.parseInt(puertoText.getText());
+            System.out.println("Conectando");
+            Thread t = new Thread() {
+                public void run() {
+                    initClient();
+                }
+            };
+            t.start();            
+        }
+    }//GEN-LAST:event_conectaBtnActionPerformed
+
+    private void conectaBtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_conectaBtnMouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_conectaBtnMouseClicked
     
     /**
      * @param args the command line arguments
@@ -123,20 +233,25 @@ public class Cliente extends javax.swing.JFrame {
                 new Cliente().setVisible(true);
             }
         });
-        
-        try{
-            s =new Socket("127.0.0.1",1201);
-            connected = true;
-            din=new DataInputStream(s.getInputStream());
-            dout=new DataOutputStream(s.getOutputStream());
-            System.out.println("Conectado");
-            String msgin="";
+    }
+    
+    public static void initClient(){
+        try {
+            s = new Socket(IP, PUERTO);
             
-            while(!msgin.equals("exit") && connected){
-                
-                msgin=din.readUTF();
+            din = new DataInputStream(s.getInputStream());
+            dout = new DataOutputStream(s.getOutputStream());
+            System.out.println("Conectado");
+            String msgin = "";
+            connected = true;
+            tituloLabel.setVisible(false);
+            configPanel.setVisible(false);
+            statusLabel.setVisible(true);
+            while (!msgin.equals("exit") && connected) {
+
+                msgin = din.readUTF();
                 System.out.println(msgin);
-                switch(msgin){
+                switch (msgin) {
                     case "Desbloquea":
                         desbloquea();
                         break;
@@ -146,7 +261,12 @@ public class Cliente extends javax.swing.JFrame {
                 }
             }
             s.close();
-        }catch(Exception e){}
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null,
+            "No pudimos conectar con el socket",
+            "Error conectando",
+            JOptionPane.ERROR_MESSAGE);
+        }
     }
     
     public static void desbloquea(){
@@ -162,9 +282,36 @@ public class Cliente extends javax.swing.JFrame {
             statusLabel.setText(status);
         }catch(Exception ex){}
     }
+    
+    private static final Pattern PATTERN = Pattern.compile(
+        "^(([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.){3}([01]?\\d\\d?|2[0-4]\\d|25[0-5])$");
+
+    public static boolean validaIPv4(final String ip) {
+        return PATTERN.matcher(ip).matches();
+    }
+    
+    public static boolean isNumeric(String str)  
+    {  
+      try  
+      {  
+        double d = Double.parseDouble(str);  
+      }  
+      catch(NumberFormatException nfe)  
+      {  
+        return false;  
+      }  
+      return true;  
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JToggleButton conectaBtn;
+    private static javax.swing.JPanel configPanel;
+    private static javax.swing.JTextField ipText;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
+    private static javax.swing.JTextField puertoText;
     private static javax.swing.JLabel statusLabel;
+    private static javax.swing.JLabel tituloLabel;
     // End of variables declaration//GEN-END:variables
 }
