@@ -163,17 +163,26 @@ public class Servidor extends javax.swing.JFrame {
 
     private void conectarBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_conectarBtnActionPerformed
         // TODO add your handling code here:
-        if(JOptionPane.showConfirmDialog(frame,
-        "Estas seguro que deseas iniciar el servidor",
-        "Iniciar CyberCafe",
-        JOptionPane.YES_NO_OPTION) == 0){
-            Thread t = new Thread() {
-                public void run() {
-                    initServer();
-                }
-            };
-            t.start();
-        }
+        if(!isNumeric(puertoText.getText())){
+            JOptionPane.showMessageDialog(this,
+            "No es un puerto válido",
+            "Error conectando",
+            JOptionPane.ERROR_MESSAGE);
+        }else{
+             if(JOptionPane.showConfirmDialog(frame,
+            "Estas seguro que deseas iniciar el servidor",
+            "Iniciar CyberCafe",
+            JOptionPane.YES_NO_OPTION) == 0){
+                PUERTO = Integer.parseInt(puertoText.getText());
+                System.out.println("Iniciando Server Puerto:" + PUERTO);
+                Thread t = new Thread() {
+                    public void run() {
+                        initServer();
+                    }
+                };
+                t.start();            
+            }
+        }       
     }//GEN-LAST:event_conectarBtnActionPerformed
 
     
@@ -303,6 +312,19 @@ public class Servidor extends javax.swing.JFrame {
 
         equipoPanel.repaint();
         comps = equipoPanel.getComponents();
+    }
+    
+    public static boolean isNumeric(String str)  
+    {  
+      try  
+      {  
+        double d = Double.parseDouble(str);  
+      }  
+      catch(NumberFormatException nfe)  
+      {  
+        return false;  
+      }  
+      return true;  
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
