@@ -74,6 +74,7 @@ public class Computadora implements Runnable {
     public javax.swing.JButton bloquearBtn;
     public javax.swing.JLabel computadoraLabel;
     public javax.swing.JButton desbloquearBtn;
+    public javax.swing.JButton apagarBtn;
     public javax.swing.JLabel noDisponibleLabel;
     public javax.swing.JTextField tiempoPCText;
     
@@ -119,12 +120,14 @@ public class Computadora implements Runnable {
             }
         }catch(Exception e){}
         System.out.println("Thread " + nombrePC + " terminando.");
-        if(t.isAlive()){
-            t.stop();
-            JOptionPane.showMessageDialog(null,
-            "El cliente se ha desconectado, deteniendo hilos.",
-            "Bloqueado",
-            JOptionPane.INFORMATION_MESSAGE);
+        if(t != null){
+            if (t.isAlive()) {
+                t.stop();
+                JOptionPane.showMessageDialog(null,
+                        "El cliente se ha desconectado, deteniendo hilos.",
+                        "Bloqueado",
+                        JOptionPane.INFORMATION_MESSAGE);
+            }
         }
         servidor.eliminaComputadora(nombrePC, index);
     }
@@ -144,6 +147,7 @@ public class Computadora implements Runnable {
                 streamOut.writeUTF(msgout);
             desbloquearBtn.setVisible(true);
             bloquearBtn.setVisible(false);
+            apagarBtn.setVisible(false);
             tiempoPCText.setVisible(false);
         }catch(Exception e){}
     }
@@ -154,18 +158,21 @@ public class Computadora implements Runnable {
             streamOut.writeUTF(msgout);
             desbloquearBtn.setVisible(true);
             bloquearBtn.setVisible(false);
+            apagarBtn.setVisible(false);
             tiempoPCText.setVisible(false);
-            if(t.isAlive()){
-                t.stop();
-                JOptionPane.showMessageDialog(null,
-                "El cliente ha decidido bloquearse, serian $"+servidor.PRECIO+" pesos.",
-                "Bloqueado",
-                JOptionPane.INFORMATION_MESSAGE);
-                registroActual.dinero = registroActual.tiempo('m') * servidor.PRECIO;
-                if(registroActual.tiempo('m') == 0){
-                    registroActual.dinero = servidor.PRECIO;
+            if(t != null){
+                if(t.isAlive()){
+                    t.stop();
+                    JOptionPane.showMessageDialog(null,
+                    "El cliente ha decidido bloquearse, serian $"+servidor.PRECIO+" pesos.",
+                    "Bloqueado",
+                    JOptionPane.INFORMATION_MESSAGE);
+                    registroActual.dinero = registroActual.tiempo('m') * servidor.PRECIO;
+                    if(registroActual.tiempo('m') == 0){
+                        registroActual.dinero = servidor.PRECIO;
+                    }
+                    servidor.addRegistro(registroActual);
                 }
-                servidor.addRegistro(registroActual);
             }
         }catch(Exception e){}
     }
@@ -182,6 +189,7 @@ public class Computadora implements Runnable {
                     streamOut.writeUTF(str);
                     streamOut.writeUTF(String.valueOf(servidor.PRECIO));
                     desbloquearBtn.setVisible(false);
+                    apagarBtn.setVisible(true);
                     bloquearBtn.setVisible(true);
                     tiempoPCText.setVisible(true);
                     status = "desbloqueado";
@@ -248,6 +256,12 @@ public class Computadora implements Runnable {
             }
         }
     }
+    public void apagar(java.awt.event.ActionEvent evt){
+        try{
+            String msgout = "Apaga";
+            streamOut.writeUTF(msgout);
+        }catch(Exception ex){}
+    }
     
     public void setUpComponents(){
         System.out.println("Configurando el PC");
@@ -279,6 +293,14 @@ public class Computadora implements Runnable {
                    bloquear(evt);
             }
         });
+        
+        apagarBtn.setText("Apagar");
+        apagarBtn.setVisible(false);
+        apagarBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                   apagar(evt);
+            }
+        });
 
         noDisponibleLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         noDisponibleLabel.setText("No disponible");
@@ -295,6 +317,7 @@ public class Computadora implements Runnable {
             .addComponent(tiempoPCText, javax.swing.GroupLayout.Alignment.TRAILING)
             .addComponent(bloquearBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(desbloquearBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(apagarBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(noDisponibleLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         PC1Layout.setVerticalGroup(
@@ -307,6 +330,8 @@ public class Computadora implements Runnable {
                 .addComponent(bloquearBtn)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(desbloquearBtn)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(apagarBtn)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(noDisponibleLabel))
         );

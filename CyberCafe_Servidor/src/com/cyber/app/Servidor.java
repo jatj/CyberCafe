@@ -255,7 +255,7 @@ public class Servidor extends javax.swing.JFrame {
                 Servidor serv = new Servidor();
                 
                 serv.setExtendedState(JFrame.MAXIMIZED_BOTH); 
-                serv.setLocationRelativeTo(null);  
+                serv.setLocationRelativeTo(null);
                 serv.setVisible(true);
                 
             }

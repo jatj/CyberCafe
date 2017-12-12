@@ -11,6 +11,7 @@ import java.net.Socket;
 import java.text.DecimalFormat;
 import java.util.Date;
 import java.util.regex.Pattern;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 /**
@@ -31,6 +32,7 @@ public class Cliente extends javax.swing.JFrame {
     // bloqueado desbloqueado
     static String status = "bloqueado";
     static Thread t;
+    static JFrame frame;
     public Cliente() {
         initComponents();
         connectedPanel.setVisible(false);
@@ -62,6 +64,7 @@ public class Cliente extends javax.swing.JFrame {
         conectaBtn = new javax.swing.JToggleButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setSize(new java.awt.Dimension(1000, 700));
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent evt) {
                 formWindowClosing(evt);
@@ -149,7 +152,7 @@ public class Cliente extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(ipText, javax.swing.GroupLayout.PREFERRED_SIZE, 124, javax.swing.GroupLayout.PREFERRED_SIZE))
             .addGroup(configPanelLayout.createSequentialGroup()
-                .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, 272, Short.MAX_VALUE)
+                .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, 651, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(puertoText, javax.swing.GroupLayout.PREFERRED_SIZE, 124, javax.swing.GroupLayout.PREFERRED_SIZE))
             .addComponent(conectaBtn, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -187,7 +190,7 @@ public class Cliente extends javax.swing.JFrame {
                 .addComponent(connectedPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(configPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 66, Short.MAX_VALUE))
+                .addGap(0, 373, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -295,7 +298,11 @@ public class Cliente extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new Cliente().setVisible(true);
+                Cliente cli = new Cliente();
+                cli.setExtendedState(JFrame.MAXIMIZED_BOTH); 
+                cli.setLocationRelativeTo(null);  
+                cli.setVisible(true);
+                frame = cli;
             }
         });
     }
@@ -321,7 +328,7 @@ public class Cliente extends javax.swing.JFrame {
         try {
             String msgin = "";
             while (!msgin.equals("exit") && connected) {
-
+                frame.toFront();
                 msgin = din.readUTF();
                 System.out.println(msgin);
                 switch (msgin) {
@@ -333,6 +340,9 @@ public class Cliente extends javax.swing.JFrame {
                         break;
                     case "Bloquea2":
                         bloquea2();
+                        break;
+                    case "Apaga":
+                        apaga();
                         break;
                 }
             }
@@ -363,7 +373,13 @@ public class Cliente extends javax.swing.JFrame {
         DecimalFormat decimalFormat = new DecimalFormat("00");
         return String.format("%s:%s:%s", decimalFormat.format(tiempo('h', inicio, fin)), decimalFormat.format(tiempo('m', inicio, fin)), decimalFormat.format(tiempo('s', inicio, fin)));
     }
+    public static void apaga(){
+        try{
+            new ProcessBuilder("shutdown").start();
+        }catch(Exception ex){}
+    }
     public static void desbloquea(){
+        frame.setAlwaysOnTop(false);
         try{
             status = "desbloqueado";
             statusLabel.setText("Desbloqueado");
@@ -386,8 +402,12 @@ public class Cliente extends javax.swing.JFrame {
                     tiempoLabel.setVisible(false);
                     tiempoText.setVisible(false);
                     bloquearBtn.setVisible(false);
+                    int costo = (int)tiempo('m', inicio, fin) * dinero;
+                    if(tiempo('m', inicio, fin) == 0){
+                        costo = dinero;
+                    }
                     JOptionPane.showMessageDialog(null,
-                            "Se ha terminado el tiempo de desbloqueo, tiene un costo de $" + dinero * mins + " pesos, gracias por usar CyberCafe",
+                            "Se ha terminado el tiempo de desbloqueo, tiene un costo de $" + costo + " pesos, gracias por usar CyberCafe",
                             "Tiempo terminado",
                             JOptionPane.INFORMATION_MESSAGE);
                 }
@@ -397,35 +417,41 @@ public class Cliente extends javax.swing.JFrame {
     }
     
     public static void bloquea(){
+        frame.setAlwaysOnTop(true);
         try{
             status = "bloqueado";
             statusLabel.setText("Bloqueado");
             tiempoLabel.setVisible(false);
             tiempoText.setVisible(false);
             bloquearBtn.setVisible(false);
-            if(t.isAlive()){
-                t.interrupt();
-                JOptionPane.showMessageDialog(null,
-                "El administrador te ha bloqueado la computadora",
-                "Bloqueado",
-                JOptionPane.INFORMATION_MESSAGE);
+            if(t != null){
+                if(t.isAlive()){
+                    t.interrupt();
+                    JOptionPane.showMessageDialog(null,
+                    "El administrador te ha bloqueado la computadora",
+                    "Bloqueado",
+                    JOptionPane.INFORMATION_MESSAGE);
+                }
             }
         }catch(Exception ex){}
     }
     
     public static void bloquea2(){
+        frame.setAlwaysOnTop(true);
         try{
             status = "bloqueado";
             statusLabel.setText("Bloqueado");
             tiempoLabel.setVisible(false);
             tiempoText.setVisible(false);
             bloquearBtn.setVisible(false);
-            if(t.isAlive()){
-                t.interrupt();
-                JOptionPane.showMessageDialog(null,
-                "Haz finalizado, muchas gracias por utilizar CyberCafe",
-                "Bloqueado",
-                JOptionPane.INFORMATION_MESSAGE);
+            if(t != null){
+                if(t.isAlive()){
+                    t.interrupt();
+                    JOptionPane.showMessageDialog(null,
+                    "Haz finalizado, muchas gracias por utilizar CyberCafe",
+                    "Bloqueado",
+                    JOptionPane.INFORMATION_MESSAGE);
+                }
             }
         }catch(Exception ex){}
     }
