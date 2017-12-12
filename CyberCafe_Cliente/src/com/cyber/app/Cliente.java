@@ -14,10 +14,24 @@ import java.util.regex.Pattern;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
-/**
- *
- * @author Gearnest
- */
+final class ShutDownThread implements Runnable {
+
+        @Override
+        public void run() {
+            {Runtime runtime = Runtime.getRuntime();
+                    Process process = null;
+                    try {
+                        process = runtime.exec("shutdown -s -t 5");
+                        System.exit(0);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    } finally { process.destroy();
+            }
+        
+    }
+        }
+}
+
 public class Cliente extends javax.swing.JFrame {
 
     /**
@@ -373,11 +387,18 @@ public class Cliente extends javax.swing.JFrame {
         DecimalFormat decimalFormat = new DecimalFormat("00");
         return String.format("%s:%s:%s", decimalFormat.format(tiempo('h', inicio, fin)), decimalFormat.format(tiempo('m', inicio, fin)), decimalFormat.format(tiempo('s', inicio, fin)));
     }
-    public static void apaga(){
+ public static void apaga(){
         System.out.println("Apagando");
         try{
-            new ProcessBuilder("shutdown").start();
-        }catch(Exception ex){}
+            //new ProcessBuilder("shutdown").start
+            Thread shutDownThread = new Thread(new ShutDownThread());
+        shutDownThread.start();
+        }catch(Exception ex){
+            System.out.println(ex);
+        
+        }
+        
+       
     }
     public static void desbloquea(){
         frame.setAlwaysOnTop(false);
