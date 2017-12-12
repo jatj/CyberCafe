@@ -374,6 +374,7 @@ public class Cliente extends javax.swing.JFrame {
         return String.format("%s:%s:%s", decimalFormat.format(tiempo('h', inicio, fin)), decimalFormat.format(tiempo('m', inicio, fin)), decimalFormat.format(tiempo('s', inicio, fin)));
     }
     public static void apaga(){
+        System.out.println("Apagando");
         try{
             new ProcessBuilder("shutdown").start();
         }catch(Exception ex){}

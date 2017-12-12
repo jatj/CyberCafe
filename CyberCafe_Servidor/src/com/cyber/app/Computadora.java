@@ -100,6 +100,7 @@ public class Computadora implements Runnable {
         desbloquearBtn = new javax.swing.JButton();
         tiempoPCText = new javax.swing.JTextField();
         bloquearBtn = new javax.swing.JButton();
+        apagarBtn = new javax.swing.JButton();
         noDisponibleLabel = new javax.swing.JLabel();
     }    
     
@@ -147,7 +148,7 @@ public class Computadora implements Runnable {
                 streamOut.writeUTF(msgout);
             desbloquearBtn.setVisible(true);
             bloquearBtn.setVisible(false);
-            apagarBtn.setVisible(false);
+            apagarBtn.setVisible(true);
             tiempoPCText.setVisible(false);
         }catch(Exception e){}
     }
@@ -158,7 +159,7 @@ public class Computadora implements Runnable {
             streamOut.writeUTF(msgout);
             desbloquearBtn.setVisible(true);
             bloquearBtn.setVisible(false);
-            apagarBtn.setVisible(false);
+            apagarBtn.setVisible(true);
             tiempoPCText.setVisible(false);
             if(t != null){
                 if(t.isAlive()){
@@ -174,7 +175,9 @@ public class Computadora implements Runnable {
                     servidor.addRegistro(registroActual);
                 }
             }
-        }catch(Exception e){}
+        }catch(Exception e){
+            
+        }
     }
     
     
@@ -259,6 +262,7 @@ public class Computadora implements Runnable {
     public void apagar(java.awt.event.ActionEvent evt){
         try{
             String msgout = "Apaga";
+            System.out.println("Apagando equipo");
             streamOut.writeUTF(msgout);
         }catch(Exception ex){}
     }
